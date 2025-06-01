@@ -1,7 +1,7 @@
 # CPU Scheduling Algorithms Simulation
 # AmirAli Fakhari | Melika Soofi
 ## Project Overview
-This project, developed for an Operating Systems course, implements and analyzes three classic CPU scheduling algorithms: First-Come, First-Served (FCFS), Shortest Job First (SJF) (non-preemptive), and Round Robin (RR). The goal is to simulate their behavior with a given set of processes and compute key performance metrics for comparative analysis of their efficiency and fairness under different workloads.
+This project, developed for an Operating Systems course, implements and analyzes three classic CPU scheduling algorithms: First-Come, First-Served (FCFS), Shortest Job First (SJF) (non-preemptive), and Round Robin (RR). The primary goal is to simulate their behavior with a given set of processes and compute key performance evaluation metrics for each algorithm. This allows for a comparative analysis of their efficiency and fairness under different workloads.
 
 The simulation is written in C and includes a testing suite to verify the correctness of the implemented algorithms against expected outcomes.
 
@@ -10,92 +10,94 @@ The following CPU scheduling algorithms are implemented:
 
 ### First-Come, First-Served (FCFS)
 - A non-preemptive scheduling algorithm where processes are executed in the order they arrive in the ready queue.
-- Simple to implement but can lead to the convoy effect, where short processes wait for long processes.
+- Simple to implement but can lead to the convoy effect, where short processes get stuck waiting for long processes.
 
 ### Shortest Job First (SJF) - Non-Preemptive
 - A non-preemptive scheduling algorithm where the process with the smallest CPU burst time is selected next.
-- Optimal for minimizing average waiting time but requires knowledge of burst times and can cause starvation for long processes.
+- Optimal in terms of minimizing average waiting time but requires knowledge of future burst times and can lead to starvation for long processes if short processes keep arriving.
 
 ### Round Robin (RR)
 - A preemptive scheduling algorithm designed for time-sharing systems.
-- Each process gets a fixed time slice (quantum). If not completed, it moves to the back of the ready queue.
-- Offers better response times and fairness, but performance depends on the time quantum.
+- Each process is assigned a fixed time slice (time quantum). Processes run for this quantum, and if not completed, they are moved to the back of the ready queue.
+- Provides better response times and fairness compared to FCFS and non-preemptive SJF, but performance depends heavily on the chosen time quantum.
 
 ## Evaluation Metrics
-For each algorithm, the following average metrics are computed:
-- **Turnaround Time (TAT)**: Total time from arrival to completion.  
+For each algorithm, the following average metrics are computed for a given set of processes:
+- **Turnaround Time (TAT)**: The total time a process spends in the system, from arrival to completion.  
   *Formula*: TAT = Completion Time - Arrival Time
-- **Waiting Time (WT)**: Total time spent waiting in the ready queue.  
+- **Waiting Time (WT)**: The total time a process spends waiting in the ready queue before its execution begins or resumes.  
   *Formula*: WT = Turnaround Time - Burst Time
-- **Response Time (RT)**: Time from arrival to first CPU execution.  
+- **Response Time (RT)**: The time from when a process arrives until it first gets the CPU. For non-preemptive algorithms, this is often the same as the waiting time for the first run.  
   *Formula*: RT = First Execution Start Time - Arrival Time
 
 ## File Structure
 ```
 .
-├── scheduler.h         # Header file with struct definitions and function prototypes
-├── scheduler.c         # Implementations of FCFS, SJF, and RR algorithms
-├── scheduler_test.c    # Main program with test cases and assertions
-├── Makefile            # Script for compiling and running the project
-└── README.md           # This file: Project documentation and instructions
+├── scheduler.h         # Header file with struct definitions (Process, Metrics) and function prototypes for scheduling algorithms.
+├── scheduler.c         # Source file containing the C implementations of FCFS, SJF, and RR scheduling algorithms.
+├── scheduler_test.c    # Main program with test cases, process definitions, and assertions to validate the algorithms.
+├── Makefile            # Script for automating the build (compilation) and execution process.
+└── README.md           # This file: Project documentation, setup, and usage instructions.
 ```
 
 ## Prerequisites
-To compile and run this project, you need:
+To compile and run this project, you will need:
 - A C compiler (e.g., gcc)
 - The `make` utility
 
-These are standard tools on Unix-like systems (Linux, macOS, WSL on Windows).
+These are standard tools available on most Unix-like systems (Linux, macOS, WSL on Windows).
 
 ## Input Format
-Test cases are defined in `scheduler_test.c`. Each test case includes:
-- A set of processes, each an instance of the `Process` struct (`scheduler.h`) with:
-  - `pid`: Unique integer Process ID
-  - `arrivalTime`: Integer time of arrival in the ready queue
-  - `burstTime`: Integer total CPU execution time
-- For RR, an integer `timeQuantum` specifying the time slice duration.
+The inputs for the scheduling algorithms are defined as test cases within `scheduler_test.c`. Each test case consists of:
+- A set of processes, where each process is an instance of the `Process` struct (defined in `scheduler.h`) with the following key fields initialized:
+  - `pid`: A unique integer Process ID.
+  - `arrivalTime`: An integer representing the time at which the process arrives in the ready queue.
+  - `burstTime`: An integer representing the total CPU execution time required by the process.
+- For the Round Robin (RR) algorithm, an integer `timeQuantum` is also specified for each test case, defining the duration of a time slice.
 
-**Example Process Definition**:
+**Example of Process Definition in `scheduler_test.c`**:
 ```c
 Process test1[3] = {
-    {1, 0, 10, 0, 0, 0}, // PID=1, Arrival=0, Burst=10
-    {2, 1,  5, 0, 0, 0}, // PID=2, Arrival=1, Burst=5
-    {3, 2,  8, 0, 0, 0}  // PID=3, Arrival=2, Burst=8
+    {1, 0, 10, 0, 0, 0}, // Process 1: PID=1, Arrival=0, Burst=10
+    {2, 1,  5, 0, 0, 0}, // Process 2: PID=2, Arrival=1, Burst=5
+    {3, 2,  8, 0, 0, 0}  // Process 3: PID=3, Arrival=2, Burst=8
 };
-int quantum1 = 4; // Time quantum for RR
+int quantum1 = 4; // Time quantum for Round Robin for this specific test case
 ```
 
-Other fields (`remainingTime`, `startTime`, `completionTime`) are calculated by the algorithms.
+The other fields in the `Process` struct (`remainingTime`, `startTime`, `completionTime`) are calculated by the scheduling algorithms.
 
 ## Output Format
-Running `scheduler_test` produces output for each test case, including:
-- Test case name
-- For each algorithm (FCFS, SJF, RR):
-  - **Calculated Metrics**: Average TAT, WT, and RT (to 2 decimal places)
-  - **Expected Metrics**: Predefined values for validation
-- Status: `>>> Test Case X PASSED.` if metrics match within tolerance
-- Final: `ALL TESTS PASSED.` if all assertions pass
+When the test program `scheduler_test` is executed, it produces output for each defined test case, detailing:
+- The name of the test case.
+- For each of the three scheduling algorithms (FCFS, SJF, and RR):
+  - **Calculated Metrics**: The average Turnaround Time, average Waiting Time, and average Response Time computed by the implemented algorithm for the given set of processes. These are typically floating-point numbers displayed to two decimal places.
+  - **Expected Metrics**: The predefined expected average metrics for that specific test case. These are used by the assert statements in `scheduler_test.c` to verify correctness.
+- A status message: `>>> Test Case X PASSED.` if the calculated metrics match the expected metrics within a defined tolerance.
+- After all test cases have been processed, a final `ALL TESTS PASSED.` message is displayed if every assertion throughout all test cases was successful.
 
 ## How to Compile
-1. Navigate to the project root directory.
-2. Run:
+1. Navigate to the root directory of the project in your terminal.
+2. Run the `make` command:
    ```bash
    make
    ```
-   This compiles `scheduler.c` and `scheduler_test.c` into the `scheduler_test` executable.
+This command uses the Makefile to compile the source files (`scheduler.c` and `scheduler_test.c`) and links them to create an executable file named `scheduler_test`.
 
 ## How to Run
-After compilation, run:
-```bash
-make run
-```
-Or directly:
-```bash
-./scheduler_test
-```
-This executes all test cases and prints results to the console.
+After successful compilation:
+1. Run the compiled test program using the `make run` command:
+   ```bash
+   make run
+   ```
+2. Alternatively, you can directly execute the compiled program:
+   ```bash
+   ./scheduler_test
+   ```
+The program will execute all predefined test cases and print the results to the console, as described in the "Output Format" section.
 
 ## Sample Program Output
+The following is the full output produced when running `./scheduler_test`, demonstrating the results for all test cases:
 ```
 ==== Test Case 1 ====
 FCFS: Calculated: Turnaround: 15.00, Waiting: 7.33, Response: 7.33
@@ -106,6 +108,15 @@ RR (Quantum = 4): Calculated: Turnaround: 19.33, Waiting: 11.67, Response: 3.00
          Expected:   Turnaround: 19.33, Waiting: 11.67, Response: 3.00
 >>> Test Case 1 PASSED.
 
+==== Test Case 2 ====
+FCFS: Calculated: Turnaround: 5.67, Waiting: 1.67, Response: 1.67
+      Expected:   Turnaround: 5.67, Waiting: 1.67, Response: 1.67
+SJF:  Calculated: Turnaround: 5.67, Waiting: 1.67, Response: 1.67
+      Expected:   Turnaround: 5.67, Waiting: 1.67, Response: 1.67
+RR (Quantum = 2): Calculated: Turnaround: 5.67, Waiting: 1.67, Response: 1.00
+         Expected:   Turnaround: 5.67, Waiting: 1.67, Response: 1.00
+>>> Test Case 2 PASSED.
+
 ==== Test Case 3 ====
 FCFS: Calculated: Turnaround: 5.75, Waiting: 3.25, Response: 3.25
       Expected:   Turnaround: 5.75, Waiting: 3.25, Response: 3.25
@@ -114,6 +125,42 @@ SJF:  Calculated: Turnaround: 5.00, Waiting: 2.50, Response: 2.50
 RR (Quantum = 2): Calculated: Turnaround: 6.25, Waiting: 3.75, Response: 1.75
          Expected:   Turnaround: 6.25, Waiting: 3.75, Response: 1.75
 >>> Test Case 3 PASSED.
+
+==== Test Case 4 ====
+FCFS: Calculated: Turnaround: 8.60, Waiting: 4.60, Response: 4.60
+      Expected:   Turnaround: 8.60, Waiting: 4.60, Response: 4.60
+SJF:  Calculated: Turnaround: 7.60, Waiting: 3.60, Response: 3.60
+      Expected:   Turnaround: 7.60, Waiting: 3.60, Response: 3.60
+RR (Quantum = 3): Calculated: Turnaround: 10.60, Waiting: 6.60, Response: 2.60
+         Expected:   Turnaround: 10.60, Waiting: 6.60, Response: 2.60
+>>> Test Case 4 PASSED.
+
+==== Test Case 5 (Single Process) ====
+FCFS: Calculated: Turnaround: 5.00, Waiting: 0.00, Response: 0.00
+      Expected:   Turnaround: 5.00, Waiting: 0.00, Response: 0.00
+SJF:  Calculated: Turnaround: 5.00, Waiting: 0.00, Response: 0.00
+      Expected:   Turnaround: 5.00, Waiting: 0.00, Response: 0.00
+RR (Quantum = 2): Calculated: Turnaround: 5.00, Waiting: 0.00, Response: 0.00
+         Expected:   Turnaround: 5.00, Waiting: 0.00, Response: 0.00
+>>> Test Case 5 (Single Process) PASSED.
+
+==== Test Case 6 (Two Processes, Same Arrival) ====
+FCFS: Calculated: Turnaround: 7.00, Waiting: 2.00, Response: 2.00
+      Expected:   Turnaround: 7.00, Waiting: 2.00, Response: 2.00
+SJF:  Calculated: Turnaround: 7.00, Waiting: 2.00, Response: 2.00
+      Expected:   Turnaround: 7.00, Waiting: 2.00, Response: 2.00
+RR (Quantum = 3): Calculated: Turnaround: 8.50, Waiting: 3.50, Response: 1.50
+         Expected:   Turnaround: 8.50, Waiting: 3.50, Response: 1.50
+>>> Test Case 6 (Two Processes, Same Arrival) PASSED.
+
+==== Test Case 7 (Varying Arrivals) ====
+FCFS: Calculated: Turnaround: 15.25, Waiting: 8.75, Response: 8.75
+      Expected:   Turnaround: 15.25, Waiting: 8.75, Response: 8.75
+SJF:  Calculated: Turnaround: 14.25, Waiting: 7.75, Response: 7.75
+      Expected:   Turnaround: 14.25, Waiting: 7.75, Response: 7.75
+RR (Quantum = 3): Calculated: Turnaround: 20.00, Waiting: 13.50, Response: 3.00
+         Expected:   Turnaround: 20.00, Waiting: 13.50, Response: 3.00
+>>> Test Case 7 (Varying Arrivals) PASSED.
 
 ==== Test Case 8 (Six Processes) ====
 FCFS: Calculated: Turnaround: 17.00, Waiting: 11.17, Response: 11.17
@@ -128,13 +175,15 @@ ALL TESTS PASSED.
 ```
 
 ## How to Clean
-To remove the executable and object files:
-```bash
-make clean
-```
+To remove the compiled executable (`scheduler_test`) and any intermediate object files created during compilation:
+1. Navigate to the root directory of the project.
+2. Run the `make clean` command:
+   ```bash
+   make clean
+   ```
 
 ## Notes
-- The `Process` struct (`scheduler.h`) holds all timing information: `pid`, `arrivalTime`, `burstTime`, `remainingTime`, `startTime`, `completionTime`.
-- SJF is non-preemptive.
-- RR is preemptive, with behavior influenced by `timeQuantum`.
-- The project uses standard C and is compatible with Unix-like systems (Linux, macOS, WSL) with `gcc` and `make`.
+- The `Process` struct (defined in `scheduler.h`) is central to the simulation, holding all necessary timing information for each process, including `pid`, `arrivalTime`, `burstTime`, `remainingTime`, `startTime`, and `completionTime`.
+- The implementation of the Shortest Job First (SJF) algorithm is non-preemptive.
+- The Round Robin (RR) algorithm is preemptive and its behavior is influenced by the `timeQuantum` parameter.
+- The project is written in standard C and is designed for compatibility with Unix-like operating systems (such as Linux, macOS, or Windows Subsystem for Linux (WSL)) that provide the `gcc` compiler and `make` utility.
